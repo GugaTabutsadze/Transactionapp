@@ -1,3 +1,10 @@
 @import "tailwindcss";
 
 
+svg {
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+svg > path {
+  stroke: currentColor !important;
+}

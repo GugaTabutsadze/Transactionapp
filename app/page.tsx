@@ -11,16 +11,9 @@ import Footer from "./components/Footer/Footer";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [isClient, setIsClient] = useState(false)  
-       useEffect(() => {
-          // Component has mounted on the client
-          setIsClient(true)
-          // You can optionally open the modal here if needed
-          // setIsOpen(true)
-        }, [])
-        if (!isClient) return null
+ 
   return (
-    <div className="bg-[#F1FaFF] min-h-screen">
+    <div  className="bg-[#F1FaFF] min-h-screen">
       <Nav />
       <Herosection />
       <Slider />

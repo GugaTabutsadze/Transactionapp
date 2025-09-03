@@ -9,5 +9,9 @@ export const userState = atom({
         uid: "",
     }
 })
+ export const loadingScreenState = atom({
+    key: "loadingScreenState",
+    default: false,
+  })
 
 

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import RecoilWrapper from "./Dashboard/components/RecoilWrapper/RecoilWrapper";
+import Loading from "./components/Loading";
+import RecoilWrapper from "./components/RecoilWrapper/RecoilWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,10 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <RecoilWrapper>
          {children}
+         <Loading />
         </RecoilWrapper>
       </body>
     </html>

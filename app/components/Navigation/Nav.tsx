@@ -39,7 +39,8 @@ const Nav = () => {
       </div>
       <div className='hidden  sm:flex items-center space-x-5'>
         <Link href="/Signin">
-        <button className='border-2 border-[#0096fb] text-[#0096fb] 
+        <button 
+          className='border-2 border-[#0096fb] text-[#0096fb] 
                text-[17.6px] font-semibold px-1 sm:px-6 py-2 rounded-full cursor-pointer
                hover:bg-[rgba(0,150,251,0.1)] transition-all duration-300 hover:text-[#174773]
                hover:-translate-y-0.5'>
@@ -47,7 +48,8 @@ const Nav = () => {
         </button>
         </Link>
         <Link href="/Signup">
-          <button className='border-2 border-[#0096fb] text-white bg-[#0096fb] 
+          <button 
+             className='border-2 border-[#0096fb] text-white bg-[#0096fb] 
                text-[17.6px] font-semibold px-1 sm:px-6 py-2 rounded-full cursor-pointer shadow-[0px_4px_15px_rgba(0,150,251,0.3)]
                hover:bg-[#007ACC] transition-all duration-300 hover:-translate-y-0.5
                hover:shadow-[0px_6px_20px_rgba(0,150,251,0.4)]'>
@@ -55,7 +57,7 @@ const Nav = () => {
           </button>
         </Link>
       </div>
-        <Bars3Icon width={30} height={30} className='sm:hidden cursor-pointer'/>
+        
     </div>
   )
 }

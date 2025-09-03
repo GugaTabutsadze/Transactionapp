@@ -6,11 +6,11 @@ const Signinfooter = () => {
     <div className='bg-gray-100 w-full rounded-b-xl'>
       <div className='flex items-center justify-center space-x-2 py-3 px-2 border-b border-gray-200'>
        <span className='text-[13px] text-gray-600'>
-        Already have an account?
+        Don have Account?
        </span>
-       <Link href="/">
+       <Link href="/Signup">
         <button className='text-[14px] text-[#2f3037] font-semibold cursor-pointer'>
-            Sign in
+            Sign Up
         </button>
        </Link>
       </div>

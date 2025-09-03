@@ -1,11 +1,13 @@
 import React from 'react'
-import DashNavigation from './components/DashNavigation/DashNavigation'
 import DashContent from './components/DashContent/DashContent'
+import Dashnavi from './components/Dashnavi'
+
+
 
 const page = () => {
   return (
     <div className='flex h-screen w-full'>
-      <DashNavigation />
+      <Dashnavi />
       <DashContent />
     </div>
   )

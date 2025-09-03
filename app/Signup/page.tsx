@@ -3,34 +3,87 @@ import React, { useEffect, useState } from 'react'
 import SignupFooter from './Footer/SignupFooter'
 import Link from 'next/link'
 import { useRecoilState, useSetRecoilState } from 'recoil'
-import { userState } from '../state'
+import { loadingScreenState, userState } from '../state'
 import { auth } from '@/Firebase'
-import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
+import { createUserWithEmailAndPassword, GithubAuthProvider, GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from 'firebase/auth'
+import { useRouter } from 'next/navigation'
+import Loading from '../components/Loading'
+import { Router } from 'next/router'
+
+
+
 
 const page = () => {
+  const router = useRouter() // Add this line
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const setUser = useSetRecoilState(userState)
-  const [isClient, setIsClient] = useState(false) 
-
- const handleSignUp = async () => {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user; // ✅ Now `user` exists
-
-    setUser({
+  const [isClient, setIsClient] = useState(false)    
+  const [isLoading, setIsLoading] = useRecoilState(loadingScreenState)
+  
+  const handleSignUp = async () => {
+    setIsLoading(true)
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      setUser({
         name: "",
         email: user.email || "",
         uid: user.uid,
         userName: "",
       });
-  } catch (error) {
-    console.error("Sign-up error:", error)
+      
+      router.push("/Dashboard")
+    } catch (error) {
+      console.error("Sign-up error:", error)
+      setIsLoading(false)
+    }
+    setEmail("")
+    setPassword("")
+  };
+
+  const handleSignUpWithGoogle = async () => { 
+    setIsLoading(true) // Add loading state
+    try { 
+      const provider = new GoogleAuthProvider() 
+      const result = await signInWithPopup(auth, provider) 
+      const user = result.user 
+      setUser({ 
+        name: user.displayName || "", 
+        email: user.email || "", 
+        uid: user.uid, 
+        userName: user.email?.split("@")[0] || "", 
+      }) 
+      router.push("/Dashboard")
+    } catch (error) { 
+      console.error("Google sign-in error:", error)
+      setIsLoading(false) // Hide loading on error
+    } 
   }
-};
-  
-  
- useEffect(() => {
+
+  const handleSignUpWithGithub = async () => { 
+    setIsLoading(true) // Add loading state
+    try { 
+      const provider = new GithubAuthProvider() 
+      const result = await signInWithPopup(auth, provider) 
+      const user = result.user 
+      setUser({ 
+        name: user.displayName || "", 
+        email: user.email || "", 
+        uid: user.uid, 
+        userName: user.email?.split("@")[0] || "", 
+      })
+      router.push("/Dashboard") 
+    } catch (error) { 
+      console.error("Github sign-in error:", error)
+      setIsLoading(false) // Hide loading on error
+    } 
+  }
+
+  useEffect(() => {
+    setIsLoading(true)
+    
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser({
@@ -39,15 +92,26 @@ const page = () => {
           email: currentUser.email || '',
           uid: currentUser.uid,
         })
+        // If user is already authenticated, redirect to dashboard
+        router.push("/Dashboard")
       }
-      setIsClient(true)
+      
+      setTimeout(() => {
+        setIsLoading(false)
+        setIsClient(true)
+      }, 1000)
     })
 
     return () => unsubscribe()
-  }, [setUser])
-    
-    if (!isClient) return null
+  }, [setUser, setIsLoading, router])
+
+  // Show loading component while loading
+  if (!isClient || isLoading) {
+    return <Loading />
+  }
   return (
+    <>
+    <Loading />
     <div className='min-h-screen flex flex-col lg:grid lg:grid-cols-2'>
       <div className='flex flex-col flex-grow space-y-8 bg-white
            items-center justify-center px-4 py-8 overflow-y-auto'>
@@ -68,23 +132,25 @@ const page = () => {
           </div>
           <div className='flex flex-col space-y-4 w-full px-10 pb-6'>
            <div className='flex space-x-2 w-full'>
-            <button className='flex items-center justify-center px-2 py-1.5
-                    rounded-md w-full border border-gray-200 cursor-pointer'>
+            <button 
+              onClick={handleSignUpWithGithub}
+              className='flex items-center justify-center px-2 py-1.5
+              rounded-md w-full border border-gray-200 cursor-pointer'>
               <img 
                 width={15}
                 height={15}
                 src="/images/github.png" 
               />
             </button>
-            <button className='flex items-center justify-center px-2 py-1.5
-                    rounded-md w-full border border-gray-200 cursor-pointer'>
-                      <Link href="/Dashboard">
+            <button 
+                onClick={handleSignUpWithGoogle}
+                className='flex items-center justify-center px-2 py-1.5
+                rounded-md w-full border border-gray-200 cursor-pointer'> 
                <img 
                 width={15}
                 height={15}
                 src="/images/google.png" 
                 />
-                </Link>
             </button>
             <button className='flex items-center justify-center px-2 py-1.5
                     rounded-md w-full border border-gray-200 cursor-pointer'>
@@ -100,7 +166,7 @@ const page = () => {
               <p className="text-gray-500">or</p>
             <div className="flex-grow border-b border-gray-200"></div>
            </div>
-           <form className='flex flex-col space-y-3'>
+           <div className='flex flex-col space-y-3'>
             <div className='flex flex-col'>
              <label className='mb-1 text-[13px]'>
                Email adress
@@ -126,15 +192,15 @@ const page = () => {
              />
             </div>
             <div className='relative mt-6'>
-            <button
-            onClick={handleSignUp}
+              <button
+               onClick={handleSignUp}
                className='bg-[#3a3a3a] w-full text-white text-[13px]
                 py-1.5 rounded-md cursor-pointer'
-            >
-              Continue
-             </button>
+               >
+               Continue
+              </button>
             </div>
-           </form>
+           </div>
           </div>
           <SignupFooter />
         </div>
@@ -151,9 +217,14 @@ const page = () => {
         </Link>
       </div>
     </div>
+    </>
   )
 }
 
 export default page
 
+
+function setUser(arg0: { name: string; email: string; uid: string; userName: string }) {
+  throw new Error('Function not implemented.')
+}
 

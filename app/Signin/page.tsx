@@ -1,8 +1,86 @@
-import React from 'react'
+"use client"
+import React, { useEffect, useState } from 'react'
 import Signinfooter from './SigninFooter/Signinfooter'
 import Link from 'next/link'
+import { GithubAuthProvider, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
+import { auth } from '@/Firebase'
+import { useRouter } from 'next/navigation'
+import { useSetRecoilState } from 'recoil'
+import { userState } from '../state'
+import { ArrowDownCircleIcon, ArrowLeftEndOnRectangleIcon } from '@heroicons/react/24/outline'
+
 
 const page = () => {
+  const [isClient, setIsClient] = useState(false) 
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const setUser = useSetRecoilState(userState)
+  const [error, setError] = useState("")
+
+  const router = useRouter()
+
+const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+    const user = userCredential.user
+
+    // ✅ update recoil userState here
+    setUser({
+      name: user.displayName || "",
+      userName: user.email?.split("@")[0] || "",
+      email: user.email || "",
+      uid: user.uid,
+    })
+      router.push("/Dashboard") // redirect after login
+    } catch (err: any) {
+      setError(err.message)
+    }
+  }
+  const handleSignUpWithGoogle = async () => {
+    try{
+      const provider = new GoogleAuthProvider()
+      const result = await signInWithPopup(auth, provider)
+      const user = result.user
+  
+       setUser({
+        name: user.displayName || "",
+        email: user.email || "",
+        uid: user.uid,
+        userName: user.email?.split("@")[0] || "",
+      })
+      router.push("/Dashboard")
+    }catch (error) {
+      console.error("Google sign-in error:", error)
+    }
+  }
+  const handleSignUpWithGithub = async () => {
+    try{
+      const provider = new GithubAuthProvider()
+      const result = await signInWithPopup(auth, provider)
+      const user = result.user
+  
+       setUser({
+        name: user.displayName || "",
+        email: user.email || "",
+        uid: user.uid,
+        userName: user.email?.split("@")[0] || "",
+      })
+      router.push("/Dashboard")
+    }catch (error) {
+      console.error("Github sign-in error:", error)
+    }
+  }
+  
+   useEffect(() => {
+          // Component has mounted on the client
+          setIsClient(true)
+          // You can optionally open the modal here if needed
+          // setIsOpen(true)
+        }, [])
+        if (!isClient) return null
+
+
   return (
     <div className='min-h-screen flex flex-col lg:grid lg:grid-cols-2'>
       <div className='flex flex-col flex-grow space-y-8 bg-white
@@ -24,16 +102,20 @@ const page = () => {
           </div>
           <div className='flex flex-col space-y-4 w-full px-10 pb-6'>
            <div className='flex space-x-2 w-full'>
-            <button className='flex items-center justify-center px-2 py-1.5
-                    rounded-md w-full border border-gray-200 cursor-pointer'>
+            <button 
+                onClick={handleSignUpWithGithub}
+                className='flex items-center justify-center px-2 py-1.5
+                rounded-md w-full border border-gray-200 cursor-pointer'>
               <img 
                 width={15}
                 height={15}
                 src="/images/github.png" 
               />
             </button>
-            <button className='flex items-center justify-center px-2 py-1.5
-                    rounded-md w-full border border-gray-200 cursor-pointer'>
+            <button 
+               onClick={handleSignUpWithGoogle}
+               className='flex items-center justify-center px-2 py-1.5
+               rounded-md w-full border border-gray-200 cursor-pointer'>
                <img 
                 width={15}
                 height={15}
@@ -54,26 +136,41 @@ const page = () => {
               <p className="text-gray-500">or</p>
             <div className="flex-grow border-b border-gray-200"></div>
            </div>
-           <form className='flex flex-col space-y-3'>
+           <div className='flex flex-col space-y-3'>
             <div className='flex flex-col'>
              <label className='mb-1 text-[13px]'>
                Email adress
              </label>
              <input 
+             value={email}
+               onChange={(e) => setEmail(e.target.value)}
                className='bg-[#3a3a3a] text-[13px] text-[#a3a3a3] px-2 py-1.5 rounded-md'
                type='email' 
                placeholder='Enter your emaila adress'
              />
             </div>
+            <div className='flex flex-col'>
+             <label className='mb-1 text-[13px]'>
+               Password
+             </label>
+             <input 
+               value={password}
+               onChange={(e) => setPassword(e.target.value)}
+               className='bg-[#272727] text-[13px] text-[#a3a3a3] px-2 py-1.5 rounded-md'
+               type='password' 
+               placeholder='Enter your emaila adress'
+             />
+            </div>
             <div className='relative mt-8'>
             <button
+              onClick={handleSignIn}
                className='bg-[#3a3a3a] w-full text-white text-[13px]
                 py-1.5 rounded-md cursor-pointer'
             >
               Continue
              </button>
             </div>
-           </form>
+           </div>
           </div>
           <Signinfooter />
         </div>
