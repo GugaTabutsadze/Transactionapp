@@ -24,7 +24,7 @@ const page = () => {
   const handleSignUp = async () => {
     setIsLoading(true)
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth!, email, password);
       const user = userCredential.user;
       
       setUser({
@@ -47,7 +47,7 @@ const page = () => {
     setIsLoading(true) // Add loading state
     try { 
       const provider = new GoogleAuthProvider() 
-      const result = await signInWithPopup(auth, provider) 
+      const result = await signInWithPopup(auth!, provider) 
       const user = result.user 
       setUser({ 
         name: user.displayName || "", 
@@ -66,7 +66,7 @@ const page = () => {
     setIsLoading(true) // Add loading state
     try { 
       const provider = new GithubAuthProvider() 
-      const result = await signInWithPopup(auth, provider) 
+      const result = await signInWithPopup(auth!, provider) 
       const user = result.user 
       setUser({ 
         name: user.displayName || "", 
@@ -84,7 +84,7 @@ const page = () => {
   useEffect(() => {
     setIsLoading(true)
     
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth!, (currentUser) => {
       if (currentUser) {
         setUser({
           name: currentUser.displayName || '',

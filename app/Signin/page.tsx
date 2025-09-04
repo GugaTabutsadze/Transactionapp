@@ -22,7 +22,8 @@ const page = () => {
 const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      if (!auth) return;
+      const userCredential = await signInWithEmailAndPassword(auth!, email, password)
     const user = userCredential.user
 
     // ✅ update recoil userState here
@@ -40,7 +41,7 @@ const handleSignIn = async (e: React.FormEvent) => {
   const handleSignUpWithGoogle = async () => {
     try{
       const provider = new GoogleAuthProvider()
-      const result = await signInWithPopup(auth, provider)
+      const result = await signInWithPopup(auth!, provider)
       const user = result.user
   
        setUser({
@@ -57,7 +58,7 @@ const handleSignIn = async (e: React.FormEvent) => {
   const handleSignUpWithGithub = async () => {
     try{
       const provider = new GithubAuthProvider()
-      const result = await signInWithPopup(auth, provider)
+      const result = await signInWithPopup(auth!, provider)
       const user = result.user
   
        setUser({

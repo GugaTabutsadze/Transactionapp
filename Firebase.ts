@@ -1,10 +1,9 @@
-// Firebase.js - Client-side only initialization
-import { initializeApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
 
-// Your Firebase configuration
+// Firebase.js - TypeScript compatible version
+import { initializeApp, getApps } from "firebase/app";
+import { getAuth, Auth } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
+
 const firebaseConfig = {
   apiKey: "AIzaSyCEhKnQNxHjebA_G8X5zbEt2ZccF3VR144",
   authDomain: "transactionapp-1f044.firebaseapp.com",
@@ -15,14 +14,12 @@ const firebaseConfig = {
   measurementId: "G-8EJ81F8CQJ"
 };
 
-// Initialize Firebase only on client side and prevent duplicate initialization
-let app;
-let auth;
-let db;
-let analytics;
+// Explicitly type the variables
+let app: any = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
 
 if (typeof window !== 'undefined') {
-  // Check if Firebase is already initialized
   if (!getApps().length) {
     app = initializeApp(firebaseConfig);
   } else {
@@ -31,14 +28,9 @@ if (typeof window !== 'undefined') {
   
   auth = getAuth(app);
   db = getFirestore(app);
-  
-  // Initialize Analytics only if measurementId exists
-  if (firebaseConfig.measurementId) {
-    analytics = getAnalytics(app);
-  }
 }
 
-export { auth, db, analytics };
+export { auth, db };
 {/*// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
