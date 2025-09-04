@@ -85,15 +85,7 @@ const Header = () => {
         <AnimatePresence>
           {menuOpen && (
             <>
-              {/* Overlay */}
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={overlayVariants}
-                className="fixed inset-0 bg-black bg-opacity-50 z-40"
-                onClick={closeMenu}
-              />
+             
 
               {/* Menu Panel */}
               <motion.div
