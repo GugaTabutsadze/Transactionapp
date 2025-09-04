@@ -1,55 +1,44 @@
-// Firebase.js - Updated with better error handling
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+// Firebase.js - Client-side only initialization
+import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
 
-// Your web app's Firebase configuration
+// Your Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyCEhKnQNxHjebA_G8X5zbEt2ZccF3VR144",
+  authDomain: "transactionapp-1f044.firebaseapp.com",
+  projectId: "transactionapp-1f044",
+  storageBucket: "transactionapp-1f044.appspot.com",
+  messagingSenderId: "142543666034",
+  appId: "1:142543666034:web:7955bdc0287f9f28077beb",
+  measurementId: "G-8EJ81F8CQJ"
 };
 
-// Validate required environment variables
-const requiredEnvVars = [
-  'NEXT_PUBLIC_FIREBASE_API_KEY',
-  'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
-  'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
-  'NEXT_PUBLIC_FIREBASE_APP_ID'
-];
+// Initialize Firebase only on client side and prevent duplicate initialization
+let app;
+let auth;
+let db;
+let analytics;
 
-// Check if we're in a server environment
-const isServer = typeof window === 'undefined';
-
-// Only validate in development or when actually needed
-if (!isServer) {
-  const missingVars = requiredEnvVars.filter(
-    varName => !process.env[varName]
-  );
+if (typeof window !== 'undefined') {
+  // Check if Firebase is already initialized
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+  } else {
+    app = getApps()[0];
+  }
   
-  if (missingVars.length > 0) {
-    console.error('Missing Firebase environment variables:', missingVars);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  
+  // Initialize Analytics only if measurementId exists
+  if (firebaseConfig.measurementId) {
+    analytics = getAnalytics(app);
   }
 }
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Analytics only on client side
-let analytics;
-if (!isServer && firebaseConfig.measurementId) {
-  analytics = getAnalytics(app);
-}
-
-// Initialize Auth and Firestore
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export { analytics };
+export { auth, db, analytics };
 {/*// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
