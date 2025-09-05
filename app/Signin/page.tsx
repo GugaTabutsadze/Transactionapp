@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import Signinfooter from './SigninFooter/Signinfooter'
 import Link from 'next/link'
-import { GithubAuthProvider, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
+import { GithubAuthProvider, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect } from 'firebase/auth'
 import { auth } from '@/Firebase'
 import { useRouter } from 'next/navigation'
 import { useSetRecoilState } from 'recoil'
@@ -38,22 +38,37 @@ const handleSignIn = async (e: React.FormEvent) => {
       setError(err.message)
     }
   }
-  const handleSignUpWithGoogle = async () => {
-    try{
-      const provider = new GoogleAuthProvider()
-      const result = await signInWithPopup(auth!, provider)
-      const user = result.user
+  const provider = new GoogleAuthProvider();
   
-       setUser({
-        name: user.displayName || "",
-        email: user.email || "",
-        uid: user.uid,
-        userName: user.email?.split("@")[0] || "",
-      })
-      router.push("/Dashboard")
-    }catch (error) {
+  const isMobile = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
+  const handleSignUpWithGoogle = async () => { 
+    setIsLoading(true) // Add loading state
+    try { 
+      const provider = new GoogleAuthProvider() 
+  
+      let result;
+      if (isMobile()) {
+        // Mobile: use redirect
+        await signInWithRedirect(auth!, provider)
+        // After redirect, Firebase handles the result automatically
+        // You can handle it with getRedirectResult elsewhere if needed
+      } else {
+        // Desktop: popup works
+        result = await signInWithPopup(auth!, provider) 
+        const user = result.user 
+        setUser({ 
+          name: user.displayName || "", 
+          email: user.email || "", 
+          uid: user.uid, 
+          userName: user.email?.split("@")[0] || "", 
+        })
+        router.push("/Dashboard") 
+      }
+    } catch (error) { 
       console.error("Google sign-in error:", error)
-    }
+      setIsLoading(false) // Hide loading on error
+    } 
   }
   const handleSignUpWithGithub = async () => {
     try{
@@ -192,3 +207,7 @@ const handleSignIn = async (e: React.FormEvent) => {
 }
 
 export default page
+function setIsLoading(arg0: boolean) {
+  throw new Error('Function not implemented.')
+}
+
