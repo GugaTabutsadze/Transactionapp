@@ -16,6 +16,7 @@ const page = () => {
   const [password, setPassword] = useState("")
   const setUser = useSetRecoilState(userState)
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const router = useRouter()
 
