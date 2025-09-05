@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { loadingScreenState, userState } from '../state'
 import { auth } from '@/Firebase'
-import { createUserWithEmailAndPassword, GithubAuthProvider, GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from 'firebase/auth'
+import { createUserWithEmailAndPassword, GithubAuthProvider, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import Loading from '../components/Loading'
 import { Router } from 'next/router'
@@ -42,27 +42,41 @@ const page = () => {
     setEmail("")
     setPassword("")
   };
+  
+const provider = new GoogleAuthProvider();
 
-  const handleSignUpWithGoogle = async () => { 
-    setIsLoading(true) // Add loading state
-    try { 
-      const provider = new GoogleAuthProvider() 
-      const result = await signInWithPopup(auth!, provider) 
+const isMobile = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+const handleSignUpWithGoogle = async () => { 
+  setIsLoading(true) // Add loading state
+  try { 
+    const provider = new GoogleAuthProvider() 
+
+    let result;
+    if (isMobile()) {
+      // Mobile: use redirect
+      await signInWithRedirect(auth!, provider)
+      // After redirect, Firebase handles the result automatically
+      // You can handle it with getRedirectResult elsewhere if needed
+    } else {
+      // Desktop: popup works
+      result = await signInWithPopup(auth!, provider) 
       const user = result.user 
       setUser({ 
         name: user.displayName || "", 
         email: user.email || "", 
         uid: user.uid, 
         userName: user.email?.split("@")[0] || "", 
-      }) 
-      router.push("/Dashboard")
-    } catch (error) { 
-      console.error("Google sign-in error:", error)
-      setIsLoading(false) // Hide loading on error
-    } 
-  }
+      })
+      router.push("/Dashboard") 
+    }
+  } catch (error) { 
+    console.error("Google sign-in error:", error)
+    setIsLoading(false) // Hide loading on error
+  } 
+}
 
-  const handleSignUpWithGithub = async () => { 
+ const handleSignUpWithGithub = async () => { 
     setIsLoading(true) // Add loading state
     try { 
       const provider = new GithubAuthProvider() 
@@ -80,6 +94,7 @@ const page = () => {
       setIsLoading(false) // Hide loading on error
     } 
   }
+
 
   useEffect(() => {
     setIsLoading(true)
