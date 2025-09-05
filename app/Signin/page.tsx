@@ -208,7 +208,5 @@ const handleSignIn = async (e: React.FormEvent) => {
 }
 
 export default page
-function setIsLoading(arg0: boolean) {
-  throw new Error('Function not implemented.')
-}
+
 
