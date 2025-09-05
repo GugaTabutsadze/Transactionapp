@@ -1,11 +1,12 @@
 "use client"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { motion, AnimatePresence, Variants } from "framer-motion"
 import { format } from "date-fns"
 import 'react-date-range/dist/styles.css'
 import 'react-date-range/dist/theme/default.css'
 import { DateRange } from "react-date-range"
 import { 
+  ArrowLeftEndOnRectangleIcon,
   BanknotesIcon, 
   Bars3Icon, 
   BuildingLibraryIcon, 
@@ -14,10 +15,17 @@ import {
   QueueListIcon, 
   XMarkIcon 
 } from "@heroicons/react/24/outline"
+import { useSetRecoilState } from "recoil"
+import { useRouter } from "next/navigation"
+import { userState } from "@/app/state"
+import { onAuthStateChanged, signOut } from "firebase/auth"
+import { auth } from "@/Firebase"
 
 const Header = () => {
   const [showCalendar, setShowCalendar] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const setUser = useSetRecoilState(userState)
+   const router = useRouter()
 
   const [range, setRange] = useState([
     { startDate: new Date(), endDate: new Date(), key: 'selection' }
@@ -29,12 +37,6 @@ const Header = () => {
   const toggleMenu = () => setMenuOpen(!menuOpen)
   const closeMenu = () => setMenuOpen(false)
 
-  // Overlay animation
-  const overlayVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-    exit: { opacity: 0 }
-  }
 
   // Sidebar panel animation
   const menuVariants: Variants = {
@@ -70,6 +72,35 @@ const Header = () => {
     { Icon: CreditCardIcon, text: "Stocks" },
     { Icon: Cog6ToothIcon, text: "Settings" }
   ]
+async function handleLogout() {
+    try {
+    if (!auth) return; // 🔹 Prevent null
+    await signOut(auth);
+    setUser({ name: "", userName: "", email: "", uid: "" });
+    router.push("/Signin");
+  } catch (error) {
+    console.log(error);
+  }
+  }
+ useEffect(() => {
+    // Only run if auth is available (client-side)
+    if (!auth) return
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser({
+          name: currentUser.displayName || "",
+          userName: currentUser.email?.split("@")[0] || "",
+          email: currentUser.email || "",
+          uid: currentUser.uid,
+        })
+      } else {
+        setUser({ name: "", userName: "", email: "", uid: "" })
+      }
+    })
+
+    return () => unsubscribe?.()
+  }, [setUser])
 
   return (
     <div className="bg-gradient-to-r from-blue-500 to-blue-300 w-full shadow-md flex flex-col items-center justify-center px-6 py-4 relative">
@@ -85,8 +116,6 @@ const Header = () => {
         <AnimatePresence>
           {menuOpen && (
             <>
-             
-
               {/* Menu Panel */}
               <motion.div
                 initial="hidden"
@@ -98,6 +127,11 @@ const Header = () => {
                 {/* Menu Header */}
                 <div className="flex justify-between items-center p-6 border-b border-gray-200">
                   <h2 className="text-xl font-semibold text-gray-800">Menu</h2>
+                  <div className="flex items-center space-x-6">
+                  <ArrowLeftEndOnRectangleIcon 
+                    onClick={handleLogout}
+                    width={24} height={24} className="text-gray-600 cursor-pointer" 
+                    />
                   <motion.button
                     whileHover={{ scale: 1.1, rotate: 90 }}
                     whileTap={{ scale: 0.95 }}
@@ -106,6 +140,7 @@ const Header = () => {
                   >
                     <XMarkIcon width={24} height={24} className="text-gray-600 cursor-pointer" />
                   </motion.button>
+                  </div>
                 </div>
 
                 {/* Menu Items */}

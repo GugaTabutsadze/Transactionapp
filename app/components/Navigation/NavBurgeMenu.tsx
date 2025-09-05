@@ -34,7 +34,7 @@ const NavBurgeMenu = ({ onClose }: { onClose: () => void }) => {
         }
       </ul>
       </div>
-      <div className='flex flex-col w-full space-y-4 px-4 mt-6'>
+      <div className='flex flex-col w-full space-y-4 px-4 mt-6 pb-5'>
         <Link href="/Signin">
             <button 
               className='border-2 border-[#0096fb] text-[#0096fb] w-full
